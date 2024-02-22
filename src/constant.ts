@@ -1,1 +1,1 @@
-export const DB_NAME: string = "Book_E-commerc";
+export const DB_NAME: string = "Book_E-commerce";
