@@ -2,6 +2,7 @@ import express, { Application, urlencoded } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { BASE_URL } from "./src/constant";
+import authRouter from "./src/routes/auth";
 import userRouter from "./src/routes/users";
 
 const app: Application = express();
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.use(`${BASE_URL}/auth`, userRouter);
+app.use(`${BASE_URL}/auth`, authRouter);
+app.use(`${BASE_URL}/users`, userRouter);
 
 export default app;
