@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { Book } from "../models/books";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/AsyncHanlder";
+import { ObjectId } from "bson";
 
 const registerBooks = asyncHandler(async (req: Request, res: Response) => {
   const { name, rating, publishedBy } = req.body.payload;
@@ -46,4 +48,71 @@ const registerBooks = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export { registerBooks };
+const getAllBooks = asyncHandler(async (req: Request, res: Response) => {
+  const books = await Book.find().lean();
+  res
+    .status(200)
+    .json(new ApiResponse(200, books, "Books fetched successfully"));
+});
+const getBook = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    throw new ApiError(401, "invalid paramete");
+  }
+  const book = await Book.findById(id);
+  if (!book) {
+    throw new ApiError(401, "Invalid Book id");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, book, "Book Found Successfully"));
+});
+
+const updateBook = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { publishedBy, name, rating } = req.body.payload;
+  const authorId: any = new ObjectId(req.body.user._id);
+  const book = await Book.findById(id);
+  if (!book) {
+    throw new ApiError(401, "Book not found");
+  }
+  if (!authorId.equals(book.author)) {
+    throw new ApiError(401, "Access denied to update the book");
+  }
+  if (!id) {
+    throw new ApiError(401, "Invalid parameter");
+  }
+
+  const updatedBook = await Book.findByIdAndUpdate(
+    id,
+    { publishedBy, name, rating },
+    { new: true }
+  );
+  if (!updatedBook) {
+    throw new ApiError(401, "Book not found");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedBook, "Book updated Successfully"));
+});
+
+const deleteBook = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const authorId: any = new ObjectId(req.body.user._id);
+  if (!id) {
+    throw new ApiError(401, "Invalid parameter");
+  }
+  const book = await Book.findById(id);
+  if (!book) {
+    throw new ApiError(401, "Book not found");
+  }
+  if (!authorId.equals(book.author)) {
+    throw new ApiError(401, "Access denied to delete the book");
+  }
+  await Book.deleteOne({ _id: id });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Book Deleted Successfully"));
+});
+
+export { registerBooks, getAllBooks, getBook, updateBook, deleteBook };
