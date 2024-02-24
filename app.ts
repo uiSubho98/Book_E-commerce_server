@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { BASE_URL } from "./src/constant";
 import authRouter from "./src/routes/auth";
 import userRouter from "./src/routes/users";
+import booksRouter from "./src/routes/books";
 
 const app: Application = express();
 const port = 3000;
@@ -25,5 +26,6 @@ app.get("/", (req, res) => {
 
 app.use(`${BASE_URL}/auth`, authRouter);
 app.use(`${BASE_URL}/users`, userRouter);
+app.use(`${BASE_URL}/books`, booksRouter);
 
 export default app;

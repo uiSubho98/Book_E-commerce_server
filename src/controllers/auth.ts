@@ -14,22 +14,44 @@ interface IDecoded {
   exp: number;
 }
 
+function findMissingField(fields: { [key: string]: any }): string | null {
+  for (const [key, value] of Object.entries(fields)) {
+    if (!value) {
+      return key;
+    }
+  }
+  return null;
+}
+
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, role, userName, password, isAdmin, contact, address } =
     req.body;
-  if (
-    !(
-      name &&
-      email &&
-      role &&
-      userName &&
-      password &&
-      isAdmin &&
-      contact &&
-      address
-    )
-  ) {
-    throw new ApiError(400, "All fields are required");
+
+  console.log({
+    name,
+    email,
+    role,
+    userName,
+    password,
+    isAdmin,
+    contact,
+    address,
+  });
+  const missingField = findMissingField({
+    name,
+    email,
+    role,
+    userName,
+    password,
+    contact,
+    address,
+  });
+
+  if (missingField) {
+    throw new ApiError(400, `Field '${missingField}' is required`);
+  }
+  if (typeof isAdmin !== "boolean") {
+    throw new ApiError(401, "isAdmin has a invalid value");
   }
   if (
     [email, role, userName, password, contact, address].some(
