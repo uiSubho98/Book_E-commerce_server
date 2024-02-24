@@ -17,6 +17,10 @@ const bookSchema = new Schema<IBooks>(
       type: Number,
       required: true,
     },
+    price: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );

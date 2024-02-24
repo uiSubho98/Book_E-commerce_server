@@ -7,12 +7,12 @@ import { asyncHandler } from "../utils/AsyncHanlder";
 import { ObjectId } from "bson";
 
 const registerBooks = asyncHandler(async (req: Request, res: Response) => {
-  const { name, rating, publishedBy } = req.body.payload;
+  const { name, rating, publishedBy, price } = req.body.payload;
   try {
-    if (!(name && rating && publishedBy)) {
+    if (!(name && rating && publishedBy && price)) {
       throw new ApiError(401, "All fields are required");
     }
-    if ([name, rating, publishedBy].some((elem) => elem.trim() === "")) {
+    if ([name, rating, publishedBy, price].some((elem) => elem.trim() === "")) {
       throw new ApiError(401, "All fields are required with non-empty value");
     }
     const existBook = await Book.findOne({
@@ -25,6 +25,7 @@ const registerBooks = asyncHandler(async (req: Request, res: Response) => {
       name,
       rating,
       publishedBy,
+      price,
       author: req.body.user._id,
     };
     console.log({ book });
@@ -70,7 +71,7 @@ const getBook = asyncHandler(async (req: Request, res: Response) => {
 
 const updateBook = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { publishedBy, name, rating } = req.body.payload;
+  const { publishedBy, name, rating, price } = req.body.payload;
   const authorId: any = new ObjectId(req.body.user._id);
   const book = await Book.findById(id);
   if (!book) {
@@ -85,7 +86,7 @@ const updateBook = asyncHandler(async (req: Request, res: Response) => {
 
   const updatedBook = await Book.findByIdAndUpdate(
     id,
-    { publishedBy, name, rating },
+    { publishedBy, name, rating, price },
     { new: true }
   );
   if (!updatedBook) {

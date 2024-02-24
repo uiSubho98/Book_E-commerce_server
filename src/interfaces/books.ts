@@ -5,6 +5,7 @@ interface IBooks extends Document {
   publishedBy: string;
   author: Schema.Types.ObjectId;
   rating: number;
+  price: number;
 }
 
 export { IBooks };
