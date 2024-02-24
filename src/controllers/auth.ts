@@ -188,4 +188,26 @@ const renewToken = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, { accessToken }, "Acess Token Generated"));
 });
 
-export { registerUser, loginUser, renewToken };
+const logOutUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    // Find the user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    // Update refreshToken field to null
+    user.refreshToken = undefined;
+    await user.save({ validateBeforeSave: false });
+    // Clear accessToken from cookies
+    res.clearCookie("refreshToken");
+    // Return success response
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "User Logout Succesfully"));
+  } catch (error) {
+    throw new ApiError(404, "Internal Server Error");
+  }
+});
+
+export { registerUser, loginUser, renewToken, logOutUser };
