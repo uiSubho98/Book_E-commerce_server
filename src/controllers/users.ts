@@ -111,7 +111,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
       throw new ApiError(400, "All fields are required with non-empty value");
     }
     const user = await User.findOne({
-      $and: [{ userName }, { email }, { contact }],
+      $and: [{ userName }, { email }, { contact }, { isAdmin }],
     });
     if (!user) {
       throw new ApiError(401, "Invalid credentials");
@@ -146,7 +146,9 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, "All fields are required with non-empty value");
   }
 
-  const user = await User.findOne({ $and: [{ userName }, { email }] });
+  const user = await User.findOne({
+    $and: [{ userName }, { email }, { isAdmin }],
+  });
   if (!user) {
     throw new ApiError(401, "Invalid credentials");
   }
