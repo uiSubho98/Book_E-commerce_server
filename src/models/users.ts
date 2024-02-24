@@ -83,8 +83,8 @@ userSchema.methods.generateRefreshToken = function () {
     username: this.username,
     role: this.role,
   };
-  const secret = `${process.env.ACCESS_TOKEN_SECRET}`;
-  const options = { expiresIn: `${process.env.ACCESS_TOKEN_EXPIRY}` };
+  const secret = `${process.env.REFRESH_TOKEN_SECRET}`;
+  const options = { expiresIn: `${process.env.REFRESH_TOKEN_EXPIRY}` };
 
   return jwt.sign(payload, secret, options);
 };

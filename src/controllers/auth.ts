@@ -3,28 +3,16 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/AsyncHanlder";
 import { User } from "../models/users";
+import { jwtDecode } from "jwt-decode";
+import { generateAccessAndRefreshToken } from "../utils/generateAccessAndRefreshToken";
 
-const generateAccessAndRefreshToken = async (userId: string) => {
-  try {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      // Handle the case when user is null
-      throw new ApiError(404, "User not found");
-    }
-
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-    user.refreshToken = refreshToken;
-
-    await user.save({ validateBeforeSave: false });
-
-    return { accessToken, refreshToken };
-  } catch (error) {
-    // Handle other errors
-    throw new ApiError(500, "Something went wrong while generating tokens");
-  }
-};
+interface IDecoded {
+  _id: string;
+  email: string;
+  role: string;
+  iat: number;
+  exp: number;
+}
 
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, role, userName, password, isAdmin, contact, address } =
@@ -178,4 +166,26 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
-export { registerUser, loginUser };
+const renewToken = asyncHandler(async (req: Request, res: Response) => {
+  const token = req.cookies.refreshToken;
+  if (!token) {
+    throw new ApiError(401, "Refresh Token is not defined");
+  }
+  const decoded: IDecoded = jwtDecode(token);
+
+  const email = decoded.email || "";
+  const user = await User.findOne({ email });
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user?._id
+  );
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  res
+    .status(200)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new ApiResponse(200, { accessToken }, "Acess Token Generated"));
+});
+
+export { registerUser, loginUser, renewToken };
