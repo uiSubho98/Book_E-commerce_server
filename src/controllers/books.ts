@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/AsyncHanlder";
 import { ObjectId } from "bson";
+import { IBooks } from "../interfaces/books";
 
 const registerBooks = asyncHandler(async (req: Request, res: Response) => {
   const { name, rating, publishedBy, price } = req.body.payload;

@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 import { IBooks } from "../interfaces/books";
-import { User } from "./users";
 
 const bookSchema = new Schema<IBooks>(
   {
